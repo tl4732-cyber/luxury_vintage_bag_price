@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Scrapy
+.scrapy/
+*.log
+httpcache/
+
+# Node
+node_modules/
+.next/
+out/
+web/.env.local
+
+# IDE / OS
+.idea/
+.DS_Store
+*.swp
+
+# Alembic / DB
+*.db
+
+# Playwright
+playwright-report/
+test-results/

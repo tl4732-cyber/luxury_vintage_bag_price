@@ -1,0 +1,28 @@
+# Scraping
+scrapy>=2.11,<3
+itemadapter>=0.8
+scrapy-playwright>=0.0.34
+playwright>=1.40
+
+# Database
+sqlalchemy>=2.0,<3
+psycopg2-binary>=2.9
+alembic>=1.13
+
+# Validation / API
+pydantic>=2.5,<3
+pydantic-settings>=2.1
+fastapi>=0.109
+uvicorn[standard]>=0.27
+httpx>=0.26
+
+# Cache
+redis>=5.0
+
+# Utils
+python-dotenv>=1.0
+python-slugify>=8.0
+
+# Tests
+pytest>=7.4
+pytest-asyncio>=0.23
