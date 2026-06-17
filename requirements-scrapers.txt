@@ -1,0 +1,10 @@
+scrapy>=2.11,<3
+itemadapter>=0.8
+pydantic>=2.5,<3
+python-dotenv>=1.0
+scrapy-playwright>=0.0.34
+playwright>=1.40
+sqlalchemy>=2.0,<3
+psycopg2-binary>=2.9
+alembic>=1.13
+pytest>=7.4

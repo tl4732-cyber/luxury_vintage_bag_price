@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.scrapy/
+*.log
+.env
+out.json
+ebay_sample.json
+out_sandbox_demo.json
+postgres_data/
+*.pages
