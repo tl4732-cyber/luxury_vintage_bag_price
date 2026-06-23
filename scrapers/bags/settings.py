@@ -26,6 +26,7 @@ DOWNLOAD_DELAY = 1
 ITEM_PIPELINES = {
     "bags.pipelines.ValidationPipeline": 100,
     "bags.pipelines.NormalizationPipeline": 200,
+    "bags.pipelines.ProductLinkPipeline": 250,
     "bags.pipelines.PostgresListingPipeline": 300,
     "bags.pipelines.PriceObservationPipeline": 400,
 }
@@ -39,5 +40,6 @@ EBAY_ENV = os.getenv("EBAY_ENV", "sandbox")
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://lvbp:lvbp_dev@localhost:5432/luxury_bags",
+    "postgresql://lvbp:lvbp_dev@localhost:5433/luxury_bags",
 )
+

@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 def get_database_url() -> str:
     return os.environ.get(
         "DATABASE_URL",
-        "postgresql://lvbp:lvbp_dev@localhost:5432/luxury_bags",
+        "postgresql://lvbp:lvbp_dev@localhost:5433/luxury_bags",
     )
 
 

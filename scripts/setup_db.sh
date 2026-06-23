@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT" 
 
-export DATABASE_URL="${DATABASE_URL:-postgresql://lvbp:lvbp_dev@localhost:5432/luxury_bags}" 
+export DATABASE_URL="${DATABASE_URL:-postgresql://lvbp:lvbp_dev@localhost:5433/luxury_bags}" 
 
 echo "Starting Postgres (Docker)..." 
 docker compose up -d 

@@ -5,7 +5,10 @@ from pydantic import ValidationError
 from scrapy.exceptions import DropItem
 from sqlalchemy import select
 
+from bags.product_linking import should_link_listing
+from bags.product_matching import get_or_create_variant
 from bags.schemas import ListingSchema
+from bags.title_parser import parse_title
 from bags.utils import compute_content_hash, normalize_condition, utc_now
 from db.models import Listing, ListingStatus, Marketplace, PriceObservation, PriceType
 from db.session import get_session_factory
@@ -52,6 +55,27 @@ class NormalizationPipeline:
         return item
 
 
+class ProductLinkPipeline:
+    """Parse title into brand/model attributes and resolve a product variant row."""
+
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        title = adapter.get("title")
+        price_amount = adapter.get("price_amount")
+        parsed = parse_title(title)
+
+        if not should_link_listing(title, price_amount, parsed):
+            adapter["product_variant_id"] = None
+            return item
+
+        Session = get_session_factory()
+        with Session() as session:
+            variant = get_or_create_variant(session, parsed)
+            adapter["product_variant_id"] = variant.id
+            session.commit()
+        return item
+
+
 class PostgresListingPipeline:
     """Upsert listing row; set listing_id on the item for price pipeline."""
 
@@ -83,39 +107,44 @@ class PostgresListingPipeline:
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
-        marketplace_id = self._marketplace_id(adapter["marketplace"])
-        source_id = str(adapter["source_listing_id"])
-        now = utc_now()
+        try:
+            marketplace_id = self._marketplace_id(adapter["marketplace"])
+            source_id = str(adapter["source_listing_id"])
+            now = utc_now()
 
-        listing = self.session.execute(
-            select(Listing).where(
-                Listing.marketplace_id == marketplace_id,
-                Listing.source_listing_id == source_id,
-            )
-        ).scalar_one_or_none()
+            listing = self.session.execute(
+                select(Listing).where(
+                    Listing.marketplace_id == marketplace_id,
+                    Listing.source_listing_id == source_id,
+                )
+            ).scalar_one_or_none()
 
-        is_new = listing is None
-        if listing is None:
-            listing = Listing(
-                marketplace_id=marketplace_id,
-                source_listing_id=source_id,
-                url=adapter["url"],
-                first_seen_at=now,
-            )
-            self.session.add(listing)
+            is_new = listing is None
+            if listing is None:
+                listing = Listing(
+                    marketplace_id=marketplace_id,
+                    source_listing_id=source_id,
+                    url=adapter["url"],
+                    first_seen_at=now,
+                )
+                self.session.add(listing)
 
-        listing.url = adapter["url"]
-        listing.title = adapter.get("title")
-        listing.condition_raw = adapter.get("condition_raw")
-        listing.condition_normalized = adapter.get("condition_normalized")
-        listing.status = ListingStatus(adapter.get("status", "active"))
-        listing.content_hash = adapter.get("content_hash")
-        listing.last_seen_at = now
-        self.session.flush()
+            listing.url = adapter["url"]
+            listing.title = adapter.get("title")
+            listing.condition_raw = adapter.get("condition_raw")
+            listing.condition_normalized = adapter.get("condition_normalized")
+            listing.status = ListingStatus(adapter.get("status", "active"))
+            listing.content_hash = adapter.get("content_hash")
+            listing.product_variant_id = adapter.get("product_variant_id")
+            listing.last_seen_at = now
+            self.session.flush()
 
-        adapter["listing_id"] = listing.id
-        adapter["_is_new_listing"] = is_new
-        self.session.commit()
+            adapter["listing_id"] = listing.id
+            adapter["_is_new_listing"] = is_new
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
         return item
 
 

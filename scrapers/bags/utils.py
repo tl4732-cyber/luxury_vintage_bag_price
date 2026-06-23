@@ -13,8 +13,8 @@ CONDITION_MAP = {
     "good": "good",
     "fair": "fair",
     "poor": "poor",
-    "pre-owned": "pre-owned",
-    "used": "pre-owned",
+    "pre-owned": "good",
+    "used": "good",
     "like new": "like_new",
 }
 
