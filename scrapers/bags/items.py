@@ -15,3 +15,6 @@ class ListingItem(scrapy.Item):
     status = scrapy.Field()
     scraped_at = scrapy.Field()
     content_hash = scrapy.Field()
+    product_variant_id = scrapy.Field()  # set by ProductLinkPipeline
+    listing_id = scrapy.Field()  # set by PostgresListingPipeline
+    _is_new_listing = scrapy.Field()  # set by PostgresListingPipeline
